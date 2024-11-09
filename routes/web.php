@@ -6,4 +6,4 @@ Route::get('/', function () {
     return view('inicio');
 });
 
-Route::get('/copias-de-seguridad',\App\Livewire\Private\Utilidades\CopiasDeSeguridad::class);
+Route::get('/copias-de-seguridad', \App\Livewire\Private\Utilities\BackUps\BackupsPage::class);
