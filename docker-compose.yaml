@@ -4,12 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DB_HOST: db
+      DB_HOST: pgsql
       COMPOSER_ALLOW_SUPERUSER: 1
     volumes:
       - .:/var/www/html
     depends_on:
-      - db
+      - pgsql
+      - mysql
     env_file:
       - .env
     command: >
@@ -25,7 +26,7 @@ services:
     depends_on:
       - app
 
-  db:
+  pgsql:
     image: postgres:15
     ports:
       - "5432:5432"
@@ -37,5 +38,78 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=caching_sha2_password
+    environment:
+      - MYSQL_USER=${MARIADB_USER}
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    volumes:
+      - 'mysql_data:/var/lib/mysql'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  moodle:
+    image: bitnami/moodle:4.5
+    ports:
+      - '80:8080'
+      - '443:8443'
+    environment:
+      - MOODLE_DATABASE_TYPE=mysqli
+      - MOODLE_DATABASE_HOST=mysql
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=${MARIADB_USER}
+      - MOODLE_DATABASE_NAME=${MARIADB_DATABASE}
+      - MOODLE_DATABASE_PASSWORD=${MARIADB_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=no
+      - MOODLE_USERNAME=${MOODLE_USERNAME}
+      - MOODLE_PASSWORD=${MOODLE_PASSWORD}
+      - MOODLE_EMAIL=${MOODLE_EMAIL}
+      - MOODLE_SITE_NAME=Mi Moodle
+      - BITNAMI_DEBUG=true
+      - APACHE_HTTP_PORT_NUMBER=8080
+      - APACHE_HTTPS_PORT_NUMBER=8443
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_MAX_EXECUTION_TIME=300
+    volumes:
+      - moodle_data:/bitnami/moodle
+      - moodledata_data:/bitnami/moodledata
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
 volumes:
   postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/postgres_data
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/mysql_data
+  moodle_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/moodle_data
+  moodledata_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/moodledata_data
