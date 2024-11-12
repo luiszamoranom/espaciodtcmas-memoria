@@ -74,7 +74,7 @@ services:
       - MOODLE_USERNAME=${MOODLE_USERNAME}
       - MOODLE_PASSWORD=${MOODLE_PASSWORD}
       - MOODLE_EMAIL=${MOODLE_EMAIL}
-      - MOODLE_SITE_NAME=Mi Moodle
+      - MOODLE_SITE_NAME=Espacio DTC+
       - BITNAMI_DEBUG=true
       - APACHE_HTTP_PORT_NUMBER=8080
       - APACHE_HTTPS_PORT_NUMBER=8443
@@ -86,7 +86,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-
 
 volumes:
   postgres_data:

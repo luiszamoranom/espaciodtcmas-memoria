@@ -1,5 +1,7 @@
 FROM php:8.2-fpm
 
+RUN echo "max_execution_time=0" > /usr/local/etc/php/conf.d/max_execution_time.ini
+
 RUN apt-get update && apt-get install -y \
     git \
     curl \
