@@ -31,6 +31,8 @@ class ExcelComp extends Component
             } else {
                 $this->respuesta = "El archivo contiene errores.";
             }
+            unlink($path);
+            $this->archivo = null;
         } else {
             $this->respuesta = "No se ha seleccionado ningún archivo o el formato no es válido.";
         }
