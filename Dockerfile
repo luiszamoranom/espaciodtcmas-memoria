@@ -28,4 +28,7 @@ COPY . .
 RUN composer install
 
 RUN mkdir -p /var/www/html/storage/framework/views \
-    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache \
+
+RUN chmod -R gu+w storage
+RUN chmod -R guo+w storage
